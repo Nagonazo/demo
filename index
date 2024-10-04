@@ -54,7 +54,7 @@
       <a-image src="#ar-image" scale="1 1 1"></a-image>
     </a-entity>
 
-    <a-camera gps-camera="minDistance: 10; maxDistance: 100"></a-camera>
+    <a-camera gps-camera="minDistance: 10; maxDistance: 1000"></a-camera>
   </a-scene>
 
   <script>
@@ -64,13 +64,15 @@
 
     el.addEventListener('gps-entity-place-update-position', (event) => {
       const distance = event.detail.distance;
-      distanceMsg.textContent = `あと${distance.toFixed(1)}m`;
 
-      if (distance <= 100 && distance > 50) {
-        distanceMsg.textContent = 'この近くのようだ';
+      // 小数点以下を切り捨て
+      const truncatedDistance = Math.floor(distance);
+
+      if (truncatedDistance <= 1000 && truncatedDistance > 500) {
+        distanceMsg.textContent = `あと${truncatedDistance}m`;
         arrow.style.display = 'none'; // 矢印を非表示
-      } else if (distance <= 50) {
-        distanceMsg.textContent = 'この近くのようだ';
+      } else if (truncatedDistance <= 500) {
+        distanceMsg.textContent = `あと${truncatedDistance}m`;
         arrow.style.display = 'block'; // 矢印を表示
         arrow.style.transform = `translate(-50%, -50%) rotate(${event.detail.bearing}deg)`; // 方角に向ける
       } else {
