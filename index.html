@@ -72,7 +72,7 @@
       // 小数点以下を切り捨て
       const truncatedDistance = Math.floor(distance);
 
-      if (truncatedDistance <= 1000 && truncatedDistance > 500) {
+      if (truncatedDistance <= 3000 && truncatedDistance > 500) {
         distanceMsg.textContent = `あと${truncatedDistance}m`;
         arrow.style.display = 'none'; // 矢印を非表示
       } else if (truncatedDistance <= 500) {
