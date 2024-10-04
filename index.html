@@ -67,23 +67,24 @@
     const arrow = document.getElementById('arrow');
 
     el.addEventListener('gps-entity-place-update-position', (event) => {
-      const distance = event.detail.distance;
+    const distance = event.detail.distance;
+    const truncatedDistance = Math.floor(distance);
+    console.log(`Distance: ${truncatedDistance}`); // デバッグ用
 
-      // 小数点以下を切り捨て
-      const truncatedDistance = Math.floor(distance);
-
-      if (truncatedDistance <= 3000 && truncatedDistance > 500) {
+    if (truncatedDistance <= 1000 && truncatedDistance > 500) {
         distanceMsg.textContent = `あと${truncatedDistance}m`;
-        arrow.style.display = 'none'; // 矢印を非表示
-      } else if (truncatedDistance <= 500) {
+        arrow.style.display = 'none';
+    } else if (truncatedDistance <= 500) {
         distanceMsg.textContent = `あと${truncatedDistance}m`;
-        arrow.style.display = 'block'; // 矢印を表示
-        arrow.style.transform = `translate(-50%, -50%) rotate(${event.detail.bearing}deg)`; // 方角に向ける
-      } else {
+        arrow.style.display = 'block';
+        arrow.style.transform = `translate(-50%, -50%) rotate(${event.detail.bearing}deg)`;
+    } else {
         distanceMsg.textContent = '';
-        arrow.style.display = 'none'; // 矢印を非表示
-      }
-    });
+        arrow.style.display = 'none';
+    }
+});
+
+
   </script>
 </body>
 </html>
