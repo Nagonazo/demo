@@ -89,13 +89,13 @@
           const distance = event.detail.distance;
           distanceMsg.textContent = `あと${Math.floor(distance)}m`;
 
-          if (distance <= 30) {
+          if (distance <= 200) {
             directionLight.setAttribute('intensity', 1);
             ambientLight.setAttribute('intensity', 1);
             distanceMsg.style.display = 'none';
             message.style.display = 'block';
-          } else if (distance <= 50) {
-            const intensity = 1 - distance / 50;
+          } else if (distance <= 500) {
+            const intensity = 1 - distance / 500;
             directionLight.setAttribute('intensity', intensity);
             ambientLight.setAttribute('intensity', intensity);
             distanceMsg.style.display = 'block';
