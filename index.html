@@ -1,90 +1,113 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>AR.js Demo with Distance Update</title>
- 　　<script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <script src="https://cdn.rawgit.com/jeromeetienne/ar.js/master/aframe/build/aframe-ar.js"></script>
-  <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      font-family: sans-serif;
-    }
-    #distance {
-      position: fixed;
-      z-index: 10000;
-      background-color: rgba(0, 0, 0, 0.9); /* より濃い背景色 */
-      color: #ffcc00; /* 明るい黄色の文字 */
-      text-align: center;
-      padding: 15px; /* パディングを増やす */
-      top: 20px; /* 位置を下に調整 */
-      left: 5%;
-      width: 90%;
-      display: block;
-      border: 2px solid #fff; /* 白色の枠線 */
-      border-radius: 10px; /* 角を丸くする */
-      font-size: 24px; /* フォントサイズを大きく */
-      font-weight: bold; /* 文字を太くする */
-    }
-    #arrow {
-      position: fixed;
-      z-index: 10000;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      display: none;
-    }
-  </style>
-</head>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Location-based AR.js demo</title>
 
-<body>
-  <div id="distance"></div>
-  <img id="arrow" src="arrow.png" alt="Arrow" width="100" height="100" />
+    <!-- A-FrameとAR.jsの読み込み -->
+    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
+    <script src="https://cdn.rawgit.com/donmccurdy/aframe-extras/v4.2.0/dist/aframe-extras.min.js"></script>
 
-  <a-scene embedded arjs="sourceType: webcam;">
-    <a-assets>
-      <img id="ar-image" src="ar-image.jpg" />
-    </a-assets>
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      #distance {
+        position: fixed;
+        z-index: 10000;
+        background-color: rgba(0,0,0,.8);
+        color: #fff;
+        padding: 10px;
+        top: 10px;
+        left: 5%;
+        width: 90%;
+        text-align: center;
+      }
+      #message {
+        position: fixed;
+        z-index: 10;
+        left: 5%;
+        bottom: 30px;
+        width: 90%;
+        padding: 5%;
+        color: #fff;
+        font-weight: bold;
+        background-color: rgba(0,0,0,.8);
+        border-radius: 20px;
+        border: 3px solid #fff;
+        display: none;
+      }
+    </style>
+  </head>
 
-    <!-- GPSエンティティの設定 -->
-    <a-entity
-      gps-entity-place="latitude: 35.15873918224782; longitude: 136.90427831659983;"
-      id="targetEntity"
-      visible="false"
-      scale="2 2 2"
+  <body>
+    <div id="distance"></div>
+    <div id="message">大鎧ドラゴンがあらわれた！</div>
+
+    <a-scene
+      vr-mode-ui="enabled: false"
+      embedded
+      arjs="sourceType: webcam; debugUIEnabled: false;"
     >
-      <a-image src="#ar-image" scale="1 1 1"></a-image>
-    </a-entity>
+      <!-- モデルデータ読み込み -->
+      <a-assets>
+        <a-asset-item id="dragon" src="dragon.gltf"></a-asset-item>
+      </a-assets>
 
-    <a-camera gps-camera="minDistance: 10; maxDistance: 1000"></a-camera>
-  </a-scene>
+      <!-- モデル表示（緯度・経度を自分の場所に変える） -->
+      <a-entity
+        gps-entity-place="latitude: 35.185; longitude: 136.899;"
+        gltf-model="#dragon"
+        scale="7 7 7"
+        rotation="0 0 0"
+        position="0 -1 0"
+        animation-mixer
+      ></a-entity>
 
-  <script>
-    const el = document.querySelector('#targetEntity');
-    const distanceMsg = document.getElementById('distance');
-    const arrow = document.getElementById('arrow');
+      <!-- 照明（光） -->
+      <a-light id="directionLight" type="directional" color="#FFF" intensity="0" position="-1 1 2"></a-light>
+      <a-light id="ambientLight" type="ambient" intensity="0" color="#FFF"></a-light>
 
-    el.addEventListener('gps-entity-place-update-position', (event) => {
-    const distance = event.detail.distance;
-    const truncatedDistance = Math.floor(distance);
-    console.log(`Distance: ${truncatedDistance}`); // デバッグ用
+      <!-- カメラ -->
+      <a-camera gps-camera="minDistance:10; maxDistance:50" rotation-reader></a-camera>
+    </a-scene>
 
-    if (truncatedDistance <= 1000 && truncatedDistance > 500) {
-        distanceMsg.textContent = `あと${truncatedDistance}m`;
-        arrow.style.display = 'none';
-    } else if (truncatedDistance <= 500) {
-        distanceMsg.textContent = `あと${truncatedDistance}m`;
-        arrow.style.display = 'block';
-        arrow.style.transform = `translate(-50%, -50%) rotate(${event.detail.bearing}deg)`;
-    } else {
-        distanceMsg.textContent = '';
-        arrow.style.display = 'none';
-    }
-});
+    <!-- JavaScriptで距離による表示の変化 -->
+    <script>
+      window.addEventListener('load', function () {
+        const el = document.querySelector('[gps-entity-place]');
+        const distanceMsg = document.getElementById('distance');
+        const message = document.getElementById('message');
+        const directionLight = document.getElementById('directionLight');
+        const ambientLight = document.getElementById('ambientLight');
 
+        el.addEventListener('gps-entity-place-update-position', (event) => {
+          const distance = event.detail.distance;
+          distanceMsg.textContent = `あと${Math.floor(distance)}m`;
 
-  </script>
-</body>
+          if (distance <= 30) {
+            directionLight.setAttribute('intensity', 1);
+            ambientLight.setAttribute('intensity', 1);
+            distanceMsg.style.display = 'none';
+            message.style.display = 'block';
+          } else if (distance <= 50) {
+            const intensity = 1 - distance / 50;
+            directionLight.setAttribute('intensity', intensity);
+            ambientLight.setAttribute('intensity', intensity);
+            distanceMsg.style.display = 'block';
+            message.style.display = 'none';
+          } else {
+            directionLight.setAttribute('intensity', 0);
+            ambientLight.setAttribute('intensity', 0);
+            distanceMsg.style.display = 'block';
+            message.style.display = 'none';
+          }
+        });
+      });
+    </script>
+  </body>
 </html>
