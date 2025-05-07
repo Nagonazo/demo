@@ -88,15 +88,15 @@
         el.addEventListener('gps-entity-place-update-position', (event) => {
           const distance = event.detail.distance;
           distanceMsg.textContent = `あと${Math.floor(distance)}m`;
-          if (distance <= 200) {
+          if (distance <= 1000000) {
             // 200m以下で明るくする、メッセージ表示、距離非表示
             directionLight.setAttribute('intensity', 1);
             ambientLight.setAttribute('intensity', 1);
             distanceMsg.style.display = 'none';
             message.style.display = 'block';
-          } else if (distance <= 500) {
+          } else if (distance <= 1000000) {
             // 500m以下で近づくほど明るくする、メッセージ非表示、距離表示
-            const intensity = 1 - distance / 500;
+            const intensity = 1 - distance / 1000000;
             directionLight.setAttribute('intensity', intensity);
             ambientLight.setAttribute('intensity', intensity);
             distanceMsg.style.display = 'block';
